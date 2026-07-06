@@ -45,7 +45,14 @@ class PlayerView extends ConsumerWidget {
                       children: [
                         _PlayerHeader(
                           isImporting: state.isImporting,
-                          onBack: () => Navigator.of(context).maybePop(),
+                          onBack: () {
+                            if (context.canPop()) {
+                              context.pop();
+                              return;
+                            }
+
+                            context.go('/');
+                          },
                           onImport: viewModel.importTrack,
                           onSettings: () => context.push('/settings'),
                         ),
@@ -233,7 +240,7 @@ class _TrackHeader extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          '${state.track.artist} · ${state.track.album}',
+          '${state.track.artist} - ${state.track.album}',
           textAlign: TextAlign.center,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,

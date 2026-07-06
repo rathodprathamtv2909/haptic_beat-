@@ -107,7 +107,8 @@ class HomeScreen extends ConsumerWidget {
                             ),
                     ),
                     IconButton(
-                      onPressed: () => context.go('/settings'),
+                      tooltip: 'Settings',
+                      onPressed: () => context.push('/settings'),
                       icon: const Icon(
                         Icons.tune_rounded,
                         color: Colors.white70,
@@ -115,7 +116,7 @@ class HomeScreen extends ConsumerWidget {
                     ),
                     const SizedBox(width: 8),
                     GestureDetector(
-                      onTap: () => context.go('/player'),
+                      onTap: () => context.push('/player'),
                       child: Container(
                         width: 42,
                         height: 42,
@@ -136,7 +137,7 @@ class HomeScreen extends ConsumerWidget {
                   child: GestureDetector(
                     key: const ValueKey('home-now-playing-card'),
                     behavior: HitTestBehavior.opaque,
-                    onTap: () => context.go('/player'),
+                    onTap: () => context.push('/player'),
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(34),

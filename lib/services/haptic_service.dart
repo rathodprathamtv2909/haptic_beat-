@@ -37,6 +37,8 @@ class HapticService {
       });
     } on MissingPluginException {
       return;
+    } on PlatformException {
+      return;
     }
   }
 }
