@@ -45,9 +45,9 @@ jobs:
       - name: Annotate iOS build log on failure
         if: failure()
         run: |
-          grep -Ei "error:|failed|failure|could not|swift|xcode|pod|exception|build failed|phasescriptexecution|command phasescriptexecution" ios-build.log | tail -n 80 > ios-build-errors.log || true
+          grep -Ei "error \\(xcode\\)|swift compiler|appdelegate.swift:|error:|cannot |missing|ambiguous|failed to build|could not build|build failed|phasescriptexecution|command phasescriptexecution" ios-build.log | tail -n 40 > ios-build-errors.log || true
           if [ ! -s ios-build-errors.log ]; then
-            tail -n 80 ios-build.log > ios-build-errors.log || true
+            tail -n 40 ios-build.log | awk '{ lines[NR] = $0 } END { for (i = NR; i > 0 && i > NR - 20; i--) print lines[i] }' > ios-build-errors.log || true
           fi
           echo "### iOS build log tail" >> "$GITHUB_STEP_SUMMARY"
           echo '```text' >> "$GITHUB_STEP_SUMMARY"
