@@ -48,7 +48,7 @@ class PlayerMetricsPanel extends StatelessWidget {
                   crossAxisCount: columns,
                   mainAxisSpacing: 10,
                   crossAxisSpacing: 10,
-                  childAspectRatio: columns == 3 ? 2.25 : 2.1,
+                  childAspectRatio: columns == 3 ? 1.9 : 1.65,
                 ),
                 itemBuilder: (context, index) {
                   return _MetricTile(metric: metrics[index]);
@@ -110,16 +110,22 @@ class _MetricTile extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(color: Colors.white54, fontSize: 12),
             ),
-            const SizedBox(height: 4),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: Text(
-                metric.value,
-                style: TextStyle(
-                  color: metric.accent,
-                  fontSize: 21,
-                  fontWeight: FontWeight.w700,
+            const SizedBox(height: 2),
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    metric.value,
+                    maxLines: 1,
+                    style: TextStyle(
+                      color: metric.accent,
+                      fontSize: 21,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
               ),
             ),

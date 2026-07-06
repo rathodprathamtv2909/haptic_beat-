@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -17,16 +18,31 @@ class MusicImportService {
     }
 
     final file = result.files.single;
-    if (file.path == null) {
+    final sourcePath = file.path;
+    if (sourcePath == null || sourcePath.isEmpty) {
       return null;
     }
 
-    final source = File(file.path!);
+    final source = File(sourcePath);
     final dir = await getApplicationDocumentsDirectory();
-    final target = File('${dir.path}/${file.name}');
-    if (!await target.exists()) {
+    final target = File(
+      '${dir.path}${Platform.pathSeparator}${_safeFileName(file.name, sourcePath)}',
+    );
+
+    if (source.path != target.path) {
       await source.copy(target.path);
     }
+
     return target.path;
   }
+}
+
+String _safeFileName(String pickerName, String sourcePath) {
+  final fallbackName = sourcePath.replaceAll('\\', '/').split('/').last;
+  final candidate = pickerName.trim().isEmpty
+      ? fallbackName
+      : pickerName.trim();
+  final sanitized = candidate.replaceAll(RegExp(r'[<>:"/\\|?*\x00-\x1F]'), '_');
+
+  return sanitized.isEmpty ? 'imported-audio' : sanitized;
 }

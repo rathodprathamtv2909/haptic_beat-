@@ -6,6 +6,42 @@ class HapticService {
     'com.example.haptic_beat/haptics',
   );
 
+  /// Warms the native haptic engine before playback starts.
+  static Future<void> prepare() async {
+    await _invoke('prepare', intensity: 0);
+  }
+
+  /// Starts a native scheduled haptic waveform and returns whether it was accepted.
+  static Future<bool> startPattern({
+    required List<int> offsetsMs,
+    required List<double> intensities,
+    required double strength,
+  }) async {
+    try {
+      final result = await _channel.invokeMethod<bool>('startPattern', {
+        'offsetsMs': offsetsMs,
+        'intensities': intensities,
+        'strength': strength.clamp(0.0, 1.0),
+      });
+      return result ?? false;
+    } on MissingPluginException {
+      return false;
+    } on PlatformException {
+      return false;
+    }
+  }
+
+  /// Cancels any native scheduled haptic waveform.
+  static Future<void> cancelPattern() async {
+    try {
+      await _channel.invokeMethod<void>('cancelPattern');
+    } on MissingPluginException {
+      return;
+    } on PlatformException {
+      return;
+    }
+  }
+
   /// Triggers a kick-style haptic transient.
   static Future<void> triggerKick({double intensity = 1}) async {
     await _invoke('triggerKick', intensity: intensity);
