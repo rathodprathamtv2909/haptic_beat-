@@ -579,7 +579,7 @@ private final class AudioAnalyzer {
 
   private static func sampleRate(for track: AVAssetTrack) -> Int {
     guard
-      let format = track.formatDescriptions.first as? CMAudioFormatDescription,
+      let format = track.formatDescriptions.first,
       let description = CMAudioFormatDescriptionGetStreamBasicDescription(format)
     else {
       return 44_100
@@ -590,7 +590,7 @@ private final class AudioAnalyzer {
 
   private static func channelCount(for track: AVAssetTrack) -> Int {
     guard
-      let format = track.formatDescriptions.first as? CMAudioFormatDescription,
+      let format = track.formatDescriptions.first,
       let description = CMAudioFormatDescriptionGetStreamBasicDescription(format)
     else {
       return 1
