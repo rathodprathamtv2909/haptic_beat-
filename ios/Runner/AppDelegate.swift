@@ -342,7 +342,7 @@ final class HapticFeedback {
         tailDuration = 0.038
       }
 
-      let sharpness = min(max(0.18 + intensity * 0.48, 0), 1)
+      let sharpness = min(max(Float(0.18) + intensity * Float(0.48), 0), 1)
       events.append(
         CHHapticEvent(
           eventType: .hapticTransient,
@@ -359,11 +359,11 @@ final class HapticFeedback {
           parameters: [
             CHHapticEventParameter(
               parameterID: .hapticIntensity,
-              value: min(intensity * 0.62, 1)
+              value: min(intensity * Float(0.62), 1)
             ),
             CHHapticEventParameter(
               parameterID: .hapticSharpness,
-              value: max(sharpness * 0.42, 0.08)
+              value: max(sharpness * Float(0.42), Float(0.08))
             ),
           ],
           relativeTime: time + 0.012,
@@ -780,7 +780,7 @@ private func fallbackBeatMap(durationMs: Int64, bpm: Int) -> AudioAnalysisResult
   var beatIntensities = [Double]()
   var timeMs = 0
   var index = 0
-  let safeDurationMs = max(durationMs, 180_000)
+  let safeDurationMs = Int(max(durationMs, 180_000))
 
   while timeMs <= safeDurationMs {
     beatTimes.append(timeMs)
