@@ -504,20 +504,7 @@ class PlayerViewModel extends StateNotifier<PlayerViewState> {
         clearImportError: true,
       );
 
-      final analysis = await _analysisService.analyzeFile(path);
-      if (analysis != null && analysis.hasCues) {
-        _hapticCues = analysis.cues;
-        _nextHapticCueIndex = 0;
-        state = state.copyWith(
-          bpm: analysis.bpm,
-          beatConfidence: analysis.confidence,
-          waveform: _waveformFromCues(analysis.cues),
-          spectrum: _spectrumFromCues(analysis.cues),
-        );
-      } else {
-        _hapticCues = const [];
-        _nextHapticCueIndex = 0;
-      }
+      await _analyzeImportedTrack(path);
 
       await _audioService.prepareFromFile(path);
       final preparedDuration = _audioService.duration ?? state.duration;
@@ -533,12 +520,37 @@ class PlayerViewModel extends StateNotifier<PlayerViewState> {
         progress: 0,
         clearImportError: true,
       );
-    } on Object {
+    } on Object catch (error, stackTrace) {
+      debugPrint('Audio import failed: $error\n$stackTrace');
       state = previousState.copyWith(
         isImporting: false,
-        importError: 'Unable to load this audio file.',
+        importError: _audioImportErrorMessage(error),
       );
     }
+  }
+
+  Future<void> _analyzeImportedTrack(String path) async {
+    try {
+      final analysis = await _analysisService.analyzeFile(path);
+      if (analysis != null && analysis.hasCues) {
+        _hapticCues = analysis.cues;
+        _nextHapticCueIndex = 0;
+        state = state.copyWith(
+          bpm: analysis.bpm,
+          beatConfidence: analysis.confidence,
+          waveform: _waveformFromCues(analysis.cues),
+          spectrum: _spectrumFromCues(analysis.cues),
+        );
+        return;
+      }
+    } on Object catch (error, stackTrace) {
+      debugPrint(
+        'Audio analysis failed, continuing without beat map: $error\n$stackTrace',
+      );
+    }
+
+    _hapticCues = const [];
+    _nextHapticCueIndex = 0;
   }
 
   /// Toggles playback and emits a matching haptic response.
@@ -953,6 +965,25 @@ String _formatDuration(Duration duration) {
   final minutes = duration.inMinutes;
   final seconds = duration.inSeconds.remainder(60).toString().padLeft(2, '0');
   return '$minutes:$seconds';
+}
+
+String _audioImportErrorMessage(Object error) {
+  final detail = error.toString().toLowerCase();
+  if (detail.contains('permission') ||
+      detail.contains('not available') ||
+      detail.contains('cannot open') ||
+      detail.contains('operation not permitted')) {
+    return 'Unable to access this audio file. Save it locally, then import it again.';
+  }
+
+  if (detail.contains('unsupported') ||
+      detail.contains('format') ||
+      detail.contains('codec') ||
+      detail.contains('source error')) {
+    return 'This audio format is not supported or is protected. Try MP3, M4A, or WAV.';
+  }
+
+  return 'Unable to load this audio file. Try MP3, M4A, or WAV saved locally.';
 }
 
 double _phaseForPosition(Duration position, int bpm) {
